@@ -14,6 +14,7 @@ const events = [
     { id: 10, name: "Interviu", date: "2025-10-30" }
 ];
 
+// Middleware pentru roluri
 function checkRole(requiredRole) {
     return (req, res, next) => {
         const role = req.headers["role"];
@@ -22,7 +23,7 @@ function checkRole(requiredRole) {
     };
 }
 
-// Rute Public
+// --- Rute Public ---
 router.get("/list", (req, res) => res.json(events));
 router.get("/details/:id", (req, res) => {
     const eventId = parseInt(req.params.id);
@@ -40,12 +41,51 @@ router.get("/search", (req, res) => {
 });
 router.get("/public/list", (req, res) => res.json(events));
 
-// Rute Admin
-router.get("/admin/edit/:id", checkRole("admin"), (req, res) => {
+// --- Rute Admin ---
+router.put("/admin/edit/:id", checkRole("admin"), (req, res) => {
     const eventId = parseInt(req.params.id);
     const event = events.find(e => e.id === eventId);
     if (!event) return res.status(404).json({ error: "Evenimentul nu există" });
-    res.json({ message: "Admin poate edita acest eveniment", event });
+
+    const { name, date } = req.body;
+    if (name) event.name = name;
+    if (date) event.date = date;
+
+    res.json({ message: "Eveniment modificat", event });
 });
 
-module.exports = router; // doar o singură dată
+router.delete("/admin/delete/:id", checkRole("admin"), (req, res) => {
+    const eventId = parseInt(req.params.id);
+    const index = events.findIndex(e => e.id === eventId);
+    if (index === -1) return res.status(404).json({ error: "Evenimentul nu există" });
+
+    const deleted = events.splice(index, 1);
+    res.json({ message: "Eveniment șters", event: deleted[0] });
+});
+
+// POST pentru adăugarea unui eveniment
+router.post("/admin/add", checkRole("admin"), (req, res) => {
+    const { name, date } = req.body;
+    if (!name || !date) return res.status(400).json({ error: "Lipsește name sau date" });
+
+    const newId = events.length ? events[events.length - 1].id + 1 : 1;
+    const newEvent = { id: newId, name, date };
+    events.push(newEvent);
+
+    res.status(201).json({ message: "Eveniment adăugat", event: newEvent });
+});
+
+// --- PATCH pentru modificări parțiale ---
+router.patch("/admin/edit/:id", checkRole("admin"), (req, res) => {
+    const eventId = parseInt(req.params.id);
+    const event = events.find(e => e.id === eventId);
+    if (!event) return res.status(404).json({ error: "Evenimentul nu există" });
+
+    // Schimbă doar câmpurile trimise în body
+    const { name, date } = req.body;
+    if (name) event.name = name;
+    if (date) event.date = date;
+
+    res.json({ message: "Eveniment actualizat parțial", event });
+});
+module.exports = router;
