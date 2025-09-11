@@ -11,7 +11,7 @@ const events = [
     { id: 7, name: "Nuntă", date: "2025-10-15" },
     { id: 8, name: "Film", date: "2025-10-20" },
     { id: 9, name: "Fotbal", date: "2025-10-25" },
-    { id: 10, name: "Interviu", date: "2025-10-30" }
+
 ];
 
 // Middleware pentru roluri
