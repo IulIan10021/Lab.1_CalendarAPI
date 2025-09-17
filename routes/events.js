@@ -2,17 +2,27 @@ const express = require("express");
 const router = express.Router();
 
 const events = [
-    { id: 1, name: "Ziua mea", date: "2025-09-15" },
-    { id: 2, name: "Examen", date: "2025-09-20" },
-    { id: 3, name: "Concert", date: "2025-09-25" },
-    { id: 4, name: "Vacanță", date: "2025-10-01" },
-    { id: 5, name: "Training", date: "2025-10-05" },
-    { id: 6, name: "Hackathon", date: "2025-10-10" },
-    { id: 7, name: "Nuntă", date: "2025-10-15" },
-    { id: 8, name: "Film", date: "2025-10-20" },
-    { id: 9, name: "Fotbal", date: "2025-10-25" },
-
+    { id: 1, student: "Ion Popescu", name: "Ziua mea", date: "2025-09-15" },
+    { id: 2, student: "Maria Ionescu", name: "Examen", date: "2025-09-20" },
+    { id: 3, student: "Andrei Georgescu", name: "Concert", date: "2025-09-25" },
+    { id: 4, student: "Elena Dumitrescu", name: "Vacanță", date: "2025-10-01" },
+    { id: 5, student: "Mihai Popa", name: "Training", date: "2025-10-05" },
+    { id: 6, student: "Carmen Stoica", name: "Hackathon", date: "2025-10-10" },
+    { id: 7, student: "Raluca Marinescu", name: "Nuntă", date: "2025-10-15" },
+    { id: 8, student: "George Ene", name: "Film", date: "2025-10-20" },
+    { id: 9, student: "Alina Pavel", name: "Fotbal", date: "2025-10-25" }
 ];
+
+//litere majuscule
+router.get("/list", (req, res) => {
+    const upperCaseEvents = events.map(e => ({
+        ...e,
+        student: e.student.toUpperCase(),
+        name: e.name.toUpperCase()
+    }));
+    res.json(upperCaseEvents);
+});
+
 
 // Middleware pentru roluri
 function checkRole(requiredRole) {
@@ -22,6 +32,17 @@ function checkRole(requiredRole) {
         next();
     };
 }
+//search
+router.get("/search", (req, res) => {
+    const { student } = req.query;
+    if (!student) return res.status(400).json({ error: "Trebuie să specifici ?student=" });
+
+    const results = events.filter(e =>
+        e.student.toLowerCase().includes(student.toLowerCase())
+    );
+
+    res.json(results);
+});
 
 // --- Rute Public ---
 router.get("/list", (req, res) => res.json(events));
