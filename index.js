@@ -1,10 +1,12 @@
 const express = require("express");
 const app = express();
+const eventsRouter = require("./routes/events");
 
-// ACTIVEAZĂ PARSER-UL JSON
+// Middleware pentru JSON
 app.use(express.json());
 
-const eventsRouter = require("./routes/events");
+// Rute principale
 app.use("/", eventsRouter);
 
+// Pornire server
 app.listen(3000, () => console.log("Server pornit pe http://localhost:3000"));
